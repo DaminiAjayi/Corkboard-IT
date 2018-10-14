@@ -1,0 +1,81 @@
+LOGIN TASK
+
+//User enters $Email, $PIN
+//if User clicks Login
+
+SELECT PIN, Email
+FROM User
+WHERE Email = '$Email';
+
+//if User.Email != '$Email':
+	//Warn user of invalid email
+
+//if User.PIN != '$PIN':
+	//warn user of invalid PIN
+
+//if User.PIN == '$PIN':
+	//redirect User to Home Screen
+
+*************************************************************
+
+ADD PUSHPIN TASK
+
+//assuming application is managing User $Email, $CorkboardID
+//User enters $URL, $Description, $Tags
+//if User clicks Add
+//separate Tags into list of strings and format uppercase
+
+INSERT INTO Pushpin (Owner_email, CorkboardID, URL, Description) VALUES ($Owner_email, $CorkboardID, $URL, $Description);
+
+SET @CurrentPushpinID = 
+(SELECT PushpinID
+FROM Pushpin
+ORDER BY PushpinID DESC
+LIMIT 1);
+
+INSERT INTO Tags (PushpinID, Tags) VALUES (@CurrentPushpinID, $Tags);
+
+*************************************************************
+
+VIEW CORKBOARD STATISTICS TASK
+
+//assuming application is managing User $Email
+//if User clicks View Corkboard Statistics
+
+SELECT Email, Fname, Lname 
+FROM User
+
+SELECT Owner_email, COUNT (Owner_email)
+FROM PublicCorkboard
+GROUP BY Owner_email;
+
+SELECT Owner_email, COUNT (Owner_email)
+FROM PrivateCorkboard
+GROUP BY Owner_email;
+
+SELECT Owner_email, COUNT (Owner_email) FROM PublicCorkboard AS PUB
+INNER JOIN ON Pushpin AS PP ON PUB.Owner_email = PP.Owner_email
+GROUP BY Owner_email
+
+SELECT Owner_email, COUNT (Owner_email) FROM PrivateCorkboard AS PRI
+INNER JOIN ON Pushpin AS PP ON PRI.Owner_email = PP.Owner_email
+GROUP BY Owner_email
+
+
+//application displays counts and user name sorted by most public corkboards, followed by most private corkboards, current user in red
+
+*************************************************************
+
+VIEW POPULAR TAGS TASK
+
+//assuming application is managing User $Email
+//if User clicks View Popular Tags
+
+SELECT Tag, COUNT (PushpinID), COUNT (DISTINCT CorkboardID)
+FROM Pushpin
+INNER JOIN Tags
+ON Pushpin.PushpinID = Tags.PushpinID
+INNER JOIN Corkboard 
+ON Corkboard.CorkboardID = Pushpin.PushpinID
+GROUP BY Tag
+

@@ -1,0 +1,102 @@
+CREATE TABLE 'USER'(
+	Email varchar(50) NOT NULL
+	Pin varchar(50) NOT NULL
+	Fname varchar(50) NOT NULL
+	Lname varchar(50) NOT NULL
+	PRIMARY KEY (Email));
+
+CREATE TABLE 'CORKBOARD'(
+	Owner_Email varchar(50) NOT NULL
+	CorkboardID varchar(50) NOT NULL
+	PRIMARY KEY(Owner_Email, CorkboardID)
+	FOREIGN KEY(Owner_Email)
+		REFERENCES 'USER' (Email));
+
+CREATE TABLE 'PRIVATE_CORKBOARD'(
+	Owner_Email varchar(50) NOT NULL
+	CorkboardID varchar(50) NOT NULL
+	Cork_date varchar(50) NOT NULL
+	Title varchar(50) NOT NULL
+	CategoryID varchar(50) NOT NULL
+	Password varchar(50) NOT NULL
+	PRIMARY KEY(Owner_Email, CorkboardID)
+	FOREIGN KEY(Owner_Email)
+		REFERENCES 'CORKBOARD' (Owner_Email)
+	FOREIGN KEY(CategoryID)
+		REFERENCES 'CATEGORIES' (CategoryID));
+
+CREATE TABLE 'PUBLIC_CORKBOARD'(
+	Owner_Email varchar(50) NOT NULL
+	CorkboardID varchar(50) NOT NULL
+	Cork_date varchar(50) NOT NULL
+	Title varchar(50) NOT NULL
+	CategoryID varchar(50) NOT NULL
+	PRIMARY KEY(Owner_Email, CorkboardID)
+	FOREIGN KEY(Owner_Email)
+		REFERENCES 'CORKBOARD' (Owner_Email)
+	FOREIGN KEY(CategoryID)
+		REFERENCES 'CATEGORIES' (CategoryID));
+
+CREATE TABLE 'CATEGORIES'(
+	CategoryID varchar(50) NOT NULL
+	Category varchar(50) NOT NULL
+	PRIMARY KEY(CategoryID));
+
+CREATE TABLE 'PUSHPIN'(
+	Owner_Email varchar(50) NOT NULL
+	CorkboardID varchar(50) NOT NULL
+	PushpinID varchar(50) NOT NULL
+	Pushpin_date varchar(50) NOT NULL
+	URL varchar(50) NOT NULL
+	Description varchar(50) NULL
+	PRIMARY KEY(Owner_Email, CorkboardID, PushpinID)
+	FOREIGN KEY(Owner_Email)
+		REFERENCES 'CORKBOARD' (Owner_Email)
+	FOREIGN KEY(CorkboardID)
+		REFERENCES 'CATEGORIES' (CorkboardID));
+
+CREATE TABLE 'TAGS'(
+	PushpinID varchar(50) NOT NULL
+	Tag varchar(50) NULL
+	PRIMARY KEY(PushpinID, Tag)
+	FOREIGN KEY(PushpinID)
+		REFERENCES 'PUSHPIN' (PushpinID));
+
+CREATE TABLE 'FOLLOWS'(
+	Follower_email varchar(50) NOT NULL
+	Followee_email varchar(50) NOT NULL
+	PRIMARY KEY(Follower_email, Followee_email)
+	FOREIGN KEY(Follower_email)
+		REFERENCES 'USER' (Email)
+	FOREIGN KEY(Followee_email)
+		REFERENCES 'USER' (Email));
+
+CREATE TABLE 'WATCHES'(
+	Non_owner_email varchar(50) NOT NULL
+	CorkboardID varchar(50) NOT NULL
+	PRIMARY KEY(Non_owner_email, CorkboardID)
+	FOREIGN KEY(Non_owner_email)
+		REFERENCES 'USER' (Email)
+	FOREIGN KEY(CorkboardID)
+		REFERENCES 'CORKBOARD' (CorkboardID));
+
+CREATE TABLE 'LIKES'(
+	Non_owner_email varchar(50) NOT NULL
+	PushpinID varchar(50) NOT NULL
+	PRIMARY KEY(Non_owner_email, PushpinID)
+	FOREIGN KEY(Non_owner_email)
+		REFERENCES 'USER' (Email)
+	FOREIGN KEY(PushpinID)
+		REFERENCES 'PushpinID' (PushpinID));
+
+CREATE TABLE 'COMMENT'(
+	Commenter_email varchar(50) NOT NULL
+	PushpinID varchar(50) NOT NULL
+	CommentID varchar(50) NOT NULL
+	Comment_date varchar(50) NOT NULL
+	Comment varchar(50) NOT NULL
+	PRIMARY KEY(Commenter_email, CorkboardID, PushpinID)
+	FOREIGN KEY(Commenter_email)
+		REFERENCES 'USER' (Owner_Email)
+	FOREIGN KEY(PushpinID)
+		REFERENCES 'PUSHPIN' (PushpinID));
