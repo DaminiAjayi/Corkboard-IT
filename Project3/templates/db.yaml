@@ -1,0 +1,5 @@
+mysql_host: 'localhost'
+mysql_user: 'jiandaoz'
+mysql_password: 'zjd_16311'
+mysql_db: 'cse6400corkboard'
+mysql_port: 3307
