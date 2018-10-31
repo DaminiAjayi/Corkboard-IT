@@ -3,16 +3,18 @@
 
 {% block body %}
   <div class="jumbotron text-center">
-    <h2>Home Page for {{current_user[0].full_name}}</h1>
+    <h2>Home Page for {{current_user.full_name}}</h1>
     <hr />
 
     <h2>Recent CorkBoard Updates</h2>
     <ul class="list-group">
       {% for corkboard in recent_updates %}
         <li class="list-group-item">
-          <a href="corkboards/{{corkboard.corkboardID}}">{{corkboard.title}}</a>
           {% if 'private' in corkboard.type %}
+            <a href="private_login/{{corkboard.corkboardID}}">{{corkboard.title}}</a>
             <font color="red">({{corkboard.type}})</font>
+          {% else %}
+            <a href="corkboard/{{corkboard.corkboardID}}">{{corkboard.title}}</a>
           {% endif %}
           <br />
           Updated by {{corkboard.full_name}} on {{corkboard.recent_date}}
@@ -23,14 +25,16 @@
 
     <h2>
       My Corkboards
-      <a href="/add_corkboard/{{current_user[0].email}}" class="btn btn-primary btn-lg">Add Corkboard</a>
+      <a href="add_corkboard" class="btn btn-primary btn-lg">Add Corkboard</a>
     </h2>
     <ul class="list-group">
       {% for corkboard in my_corkboards %}
         <li class="list-group-item">
-          <a href="corkboards/{{my_corkboards.corkboardID}}">{{corkboard.title}}</a>
           {% if 'private' in corkboard.type %}
+            <a href="private_login/{{corkboard.corkboardID}}">{{corkboard.title}}</a>
             <font color="red">({{corkboard.type}})</font>
+          {% else %}
+            <a href="corkboard/{{corkboard.corkboardID}}">{{corkboard.title}}</a>
           {% endif %}
           with {{corkboard.pushpin_count}} PushPins
         </li>

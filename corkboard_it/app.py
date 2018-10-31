@@ -6,7 +6,7 @@ SelectField
 from passlib.hash import sha256_crypt
 from functools import wraps
 
-from forms import SearchPushpinForm, AddCorkboardForm
+from forms import SearchPushpinForm, AddCorkboardForm, UserLoginForm, PrivateLoginForm
 
 
 # Place holder for current module
@@ -24,12 +24,57 @@ mysql = MySQL(app)
 
 """ROUTES"""
 
+# Initial Login
+@app.route('/login', methods=["GET","POST"])
+def login():
+
+    form = UserLoginForm(request.form)
+
+    if request.method == "POST" and form.validate():
+
+        cur = mysql.connection.cursor()
+
+        # Get form data
+        email = form.email.data
+        pin_candidate = form.pin.data
+
+        result = cur.execute("SELECT * FROM User WHERE email = %s", [email])
+
+        if result > 0:
+            data = cur.fetchone()
+            pin = data['pin']
+
+            # Successful Login
+            if pin_candidate == pin:
+                # Store current users email
+                session['email'] = email
+                print(session['email'])
+                return redirect(url_for('index'))
+            # Failed pin
+            else:
+                flash('Pin is incorrect', 'danger')
+                return render_template(
+                    'login.html',
+                    form=form)
+
+        # Failed Email
+        else:
+            flash('No user exists with that email', 'danger')
+            return render_template(
+                'login.html',
+                form=form)
+
+    return render_template(
+        'login.html',
+        form=form)
+
 # View Home Screen
 @app.route('/', methods=['GET', 'POST'])
 def index():
 
     # Search PushPins will call Search PushPins task (search_results)
     search = SearchPushpinForm(request.form)
+
     if request.method == 'POST':
         return search_results(search)
 
@@ -38,8 +83,8 @@ def index():
     # Display User's Name
     cur.execute("SELECT CONCAT(fname, ' ', lname) AS full_name, email\
         FROM `User`\
-        WHERE email = 'coco@gmail.com'")
-    current_user = cur.fetchall()
+        WHERE email = %s", [session['email']])
+    current_user = cur.fetchone()
 
     # Display most recently updated Corkboards
     cur.execute("SELECT user_cork_push.corkboardID, user_cork_push.full_name, user_cork_push.title, user_cork_push.recent_date, user_cork_push.type\
@@ -67,15 +112,15 @@ def index():
         WHERE user_cork_push.email IN (\
         SELECT Follows.followee_email FROM Follows\
         INNER JOIN `User` ON `User`.email = Follows.Followee_email\
-        WHERE Follows.follower_email = 'coco@gmail.com')\
+        WHERE Follows.follower_email = %s)\
         OR (user_cork_push.email, user_cork_push.corkboardID) IN (\
         SELECT `User`.email, Corkboard.corkboardID FROM Watches\
         INNER JOIN Corkboard ON Corkboard.corkboardID = Watches.corkboardID\
         INNER JOIN `User` ON `User`.email = Corkboard.owner_email\
-        WHERE Watches.watcher_email = 'coco@gmail.com')\
-        OR user_cork_push.email = 'coco@gmail.com'\
+        WHERE Watches.watcher_email = %s)\
+        OR user_cork_push.email = %s\
         ORDER BY user_cork_push.recent_date DESC\
-        LIMIT 4")
+        LIMIT 4", [session['email'] for _ in range(3)])
     recent_updates = cur.fetchall()
 
     # Display User's Corkboards
@@ -84,15 +129,15 @@ def index():
         WHERE owner_email = prv.owner_email\
         AND corkboardID = prv.corkboardID) AS pushpin_count\
         FROM PrivateCorkboard as prv\
-        WHERE prv.owner_email = 'coco@gmail.com'\
+        WHERE prv.owner_email = %s\
         UNION ALL\
         SELECT title, 'public', corkboardID,\
         (SELECT COUNT(*) FROM Pushpin\
         WHERE owner_email = pub.owner_email\
         AND corkboardID = pub.corkboardID) AS pushpin_count\
         FROM PublicCorkboard as pub\
-        WHERE pub.owner_email = 'coco@gmail.com'\
-        ORDER BY title")
+        WHERE pub.owner_email = %s\
+        ORDER BY title", [session['email'] for _ in range(2)])
     my_corkboards = cur.fetchall()
 
     cur.close()
@@ -109,12 +154,45 @@ def index():
 def search_results(search):
 
     results = []
-    search_string = search.data['search']
+    search_string = search.search.data
 
     return render_template(
         'search_results.html',
         search_string=search_string)
 
+# Private Corkboard Login
+@app.route('/private_login/<string:id>/',methods=["GET","POST"])
+def private_login(id):
+
+    form = PrivateLoginForm(request.form)
+
+    if request.method == "POST" and form.validate():
+
+        cur = mysql.connection.cursor()
+
+        # Get form data
+        password_candidate = form.password.data
+
+        # Get PrivateCorkboard password
+        result = cur.execute("SELECT password FROM PrivateCorkboard\
+            WHERE corkboardID = %s", [id])
+        password = cur.fetchone()['password']
+
+        # Successful Login
+        if password_candidate == password:
+            # Store current users email
+            return redirect(url_for('index'))
+
+        # Failed password
+        else:
+            flash('Password is incorrect', 'danger')
+            return render_template(
+                'private_login.html',
+                form=form)
+
+    return render_template(
+        'private_login.html',
+        form=form)
 
 # Add Corkboard
 @app.route('/add_corkboard', methods=['GET', 'POST'])
@@ -138,7 +216,7 @@ def add_corkboard():
         cur = mysql.connection.cursor()
 
         # Get form data
-        email = 'coco@gmail.com'
+        email = session['email']
         title = form.title.data
         category = form.category.data
         visibility = form.visibility.data
@@ -163,7 +241,6 @@ def add_corkboard():
 
         # Private Corkboard Add
         if visibility == 'private':
-
             print('Added Private Corkboard')
             print('EMAIL:', email)
             print('TITLE:', title)
@@ -182,7 +259,6 @@ def add_corkboard():
 
         # Public Corkboard Add
         else:
-
             print('Added Public Corkboard')
             print('EMAIL:', email)
             print('TITLE:', title)
