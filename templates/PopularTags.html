@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<form method = 'POST', action = 'http://localhost:5000/PopularTags'>
+
+<input type="submit"
+        value="Push For Stats">
+        </input>
+
+        <table border = 1>
+
+
+                    <tr>
+                      <th> Tag </th>
+                      <th> PushPins </th>
+                      <th> Corkboards </th>
+
+                    </tr>
+
+                  {% for i in result %}
+
+                        <tr>
+                          {% for key, value in i.items() %}
+
+                          <td> {{ value }} </td>
+                          {% endfor %}
+                        </tr>
+
+
+                  {% endfor %}
+
+              </table>
+
+</form>
+
+</html>
