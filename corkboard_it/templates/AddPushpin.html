@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<h1> Add PushPin </h1>
+
+<form method='POST'>
+
+  URL:<br>
+  <input type="text" name="URL" value=""></input>
+  <br>
+
+  Description:<br>
+  <textarea type="textarea" name="Description" value=""></textarea>
+  <br>
+
+  Tags (separate tags by commas):<br>
+  <input type="text" name="Tags" value=""></input>
+
+  <br>
+  <input type="submit" value="Add">
+  </input>
+
+</form>
+
+{% endblock %}

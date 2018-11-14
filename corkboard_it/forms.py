@@ -1,5 +1,5 @@
 from wtforms import Form, validators, StringField, TextAreaField, PasswordField,\
-SelectField, RadioField, IntegerField
+SelectField, RadioField, IntegerField, SubmitField
 
 
 # Search Pushpin Form
@@ -30,3 +30,9 @@ class UserLoginForm(Form):
 # Private Corkboard Login Form
 class PrivateLoginForm(Form):
     password = StringField('Password', [validators.Length(min=1, max=30)])
+
+# Corkboard View Form
+class ViewCorkboardForm(Form):
+    Follow = SubmitField(label='Follow')
+    AddPushPin = SubmitField(label='Add PushPin')
+    Watch = SubmitField(label='Watch')

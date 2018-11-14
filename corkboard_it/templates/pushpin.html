@@ -1,9 +1,58 @@
-<html>
 <head>
-  <title>View Pushpin</title>
+  <title>Pushpin-{{pushpinID}}</title>
 </head>
-<form method="GET" action="">
-  <h1>{{fname}} &nbsp {{lname}}</h1>
-  <h2>{{title}}</h2>
+
+{% extends 'layout.html' %}
+
+{% block body %}
+<form method="POST" action="">
+
+  <h1>{{fname}} {{lname}}
+    {% if enable_Follow==0 %}
+    <input type="submit" name="Follow" value="Follow" disabled>
+    {% elif enable_Follow==1 %}
+    <input type="submit" name="Follow" value="Follow">
+    {% elif enable_Follow==2 %}
+    <input type="submit" name="Follow" value="unFollow">
+    {% endif %}
+  </h1>
+  <p>Pinned {{pushpin_date}} on <a href="{{ url_for('login')}}"> {{title}} </a></p>
+  <hr />
+
+  <p>from {{url_domain}}</p>
+  <p><img src="{{url}}" alt="Pushpin Image"></p>
+  <p>{{description}}</p>
+  <p>Tags:
+    {% for itag in taglist %}
+    <b>{{itag}},</b>
+    {% endfor %}
+  </p>
+  <hr />
+
+
+  <p><img src="https://cdn-images-1.medium.com/max/1600/1*IRkZLxWrGAMUxMTNmh7cGQ.png" alt="Thumb up" height="20" width="20">
+    {%set comma = joiner(", ") %}
+    {% for iliker in likerlist %}
+    {{comma() }}{{ iliker }}
+    {% endfor %}
+    {% if enable_Like==0 %}
+    <input type="submit" name="Like" value="Like" disabled>
+    {% elif enable_Like==1 %}
+    <input type="submit" name="Like" value="Like">
+    {% elif enable_Like==2 %}
+    <input type="submit" name="Like" value="unLike">
+    {% endif %}
+  </p>
+  <hr />
+
+  <p>
+    <p>
+      <input type="text" name="Coms">
+      <input type="submit" ,name="Coms" value="Post Comment">
+    </p>
+    {% for icom in commentlist %}
+    <p><b>{{icom[0]}}</b> &emsp; {{icom[1]}} </p>
+    {% endfor %}
+  </p>
 </form>
-</html>
+{% endblock %}

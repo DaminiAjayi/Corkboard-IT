@@ -1,1 +1,1 @@
-Building my first flask application
+Building the CorkBoardIt Application for CS6400

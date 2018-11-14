@@ -1,0 +1,20 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div>
+  <h1>Popular Sites</h1>
+</div>
+
+<table style="width:100%" border=1>
+  <tr>
+    <td><b>Site Domain</b></td>
+    <td><b>Number of Links</b></td>
+  </tr>
+  {% for isite in sites %}
+  <tr>
+    <td>{{isite.PopularSite}}</td>
+    <td>{{isite.CountPopularSite}}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -24,19 +24,27 @@
 {% block body %}
 <br />
 <br />
+<table border=1>
 
-<table width=100%>
+
   <tr>
-    <th>PushPin Description</th>
-    <th>Corkboard</th>
-    <th>Owner</th>
+    <th> Tag </th>
+    <th> PushPins </th>
+    <th> Corkboards </th>
+
   </tr>
-  {% for result in results %}
+
+  {% for i in result %}
+
   <tr>
-    <td><a href='{{ url_for('pushpin', pushpinID=result.pushpinID)}}'>{{result.PushPinDescription}}</a></td>
-    <td>{{result.CorkBoard}}</td>
-    <td>{{result.fullname}}</td>
+    {% for key, value in i.items() %}
+
+    <td> {{ value }} </td>
+    {% endfor %}
   </tr>
+
+
   {% endfor %}
+
 </table>
 {% endblock %}

@@ -1,0 +1,30 @@
+<head>
+  <title>Corkboard-{{corkboardID}}</title>
+</head>
+
+{% extends 'layout.html' %}
+
+{% block body %}
+<br />
+<br />
+
+<form method="POST" action="">
+  <h1>{{owner.full_name}} <button>Follow</button>
+    <font size="3">{{category.category}}</font>
+    <h1>
+      <h1>
+        <font size="4">{{category.title}}
+      </h1>
+      <h1>
+        <font size="2">Last Updated {{date_updated.pushpin_date}}</font> <button>Add Pushpin</button>
+        <h1>
+          <tr>
+            {% for image in images %}
+            <td><a href="{{ url_for('pushpin', pushpinID = image.pushpinID)}}"><img src={{image.url}} alt="user image" style="width:10%"></a></td>
+            {% endfor %}
+          </tr>
+          <h1>
+            <font size="2"> This Corkboard has {{num_watchers.Count}} watchers.</font> <button>Watch</button>
+          </h1>
+</form>
+{% endblock %}
