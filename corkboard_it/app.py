@@ -162,6 +162,7 @@ def index():
 #         search_string=search_string)
 
 
+# View search pushpins task
 @app.route('/search_results/<search_text>')
 def search_results(search_text):
 
@@ -207,6 +208,7 @@ def popular_sites():
         "popular_sites.html",
         sites=sites)
 
+# View Corkboard Stats Task
 @app.route('/CorkboardStats')
 def CorkboardStatsView():
 
@@ -226,7 +228,7 @@ def CorkboardStatsView():
 
     return render_template('ViewCorkboardStats.html', result = data, current = current_user)
 
-
+# View popular tags task
 @app.route('/PopularTags')
 def TagStatsView():
 
@@ -262,7 +264,7 @@ def private_login(id):
         # Successful Login
         if password_candidate == password:
             # Store current users email
-            return redirect(url_for('index'))
+            return redirect(url_for('ViewCorkboard', id=id))
 
         # Failed password
         else:
@@ -306,40 +308,63 @@ def ViewCorkboard(id):
     cur.execute("SELECT url, pushpinID FROM Pushpin\
                 WHERE corkboardID = %s", [id])
     images = cur.fetchall()
-    # urls = []
-    # ids = []
-    # for index, image in enumerate(images):
-    #     urls.append(images[index]['url'])
-    #     ids.append(images[index]['pushpinID'])
 
-    print(owner['email'], session['email'])
+    check_follower=cur.execute("SELECT * FROM Follows WHERE follower_email=%s AND followee_email=%s",[session['email'],owner['email']])
+    # enable_FOllow=0 means current user is the owner of corkboard, follow button should be disabled
+    enable_Follow=0
+    if check_follower==0 and session['email']!= owner['email']:
+        # user has not followed the page and current user is not the owner of corkboard, you can follow the user
+        enable_Follow=1
+    elif check_follower>0 and session['email']!= owner['email']:
+        # user followed the page and current user is not the owner of corkboard, you can unfollow the user
+        enable_Follow=2
 
-    if owner['email'] != session['email']:
-        form = ViewCorkboardForm(request.form)
-        if request.method == 'POST' and form.validate():
-            if 'Watch' in request.form:
-                Watch(id)
+    check_watcher=cur.execute("SELECT * FROM Watches WHERE watcher_email = %s AND corkboardID = %s", [session['email'], id])
+    # enable_watch=0 means current user is the owner of corkboard, watch button should be disabled
+    enable_Watch=0
+    if check_watcher==0 and session['email']!= owner['email']:
+        # user has not watched the page and current user is not the owner of corkboard, you can watch the corkboard page
+        enable_Watch=1
+    elif check_watcher>0 and session['email']!= owner['email']:
+        # user watched the page and current user is not the owner of corkboard, you can unwatch the corkboard page
+        enable_Watch=2
+    if session['email']== owner['email']:
+        # enable_addpushpin=1 means current user is the owner of corkboard, add pushpin button should be activated
+        enable_addpushpin=1
+    else:
+        # enable_addpushpin=0 means current user is not the owner of corkboard, add pushpin button should be disabled
+        enable_addpushpin=0
 
-            if 'Follow' in request.form:
-                Follow(owner['email'], id)
-    #
-            if 'AddPushPin' in request.form:
-                Add_PushPin(id)
+    if request.method=="POST":
+        if 'Follow' in request.form:
+            Follow_op=request.form['Follow']
+            if Follow_op=="unFollow":
+                result=cur.execute("DELETE FROM Follows WHERE  follower_email= %s AND followee_email = %s", [session['email'],owner['email']])
+                mysql.connection.commit()
+                return redirect(url_for('ViewCorkboard',id=id))
+            elif Follow_op=="Follow":
+                result=cur.execute("INSERT INTO Follows (follower_email, followee_email) VALUES (%s, %s)",  [session['email'],owner['email']])
+                mysql.connection.commit()
+                return redirect(url_for('ViewCorkboard',id=id))
+        if 'Watch' in request.form:
+            Watch_op=request.form['Watch']
+            if Watch_op=="unWatch":
+                result=cur.execute("DELETE FROM Watches WHERE  watcher_email= %s AND corkboardID = %s", [session['email'], id])
+                mysql.connection.commit()
+                return redirect(url_for('ViewCorkboard',id=id))
+            elif Watch_op=="Watch":
+                result=cur.execute("INSERT INTO Watches(watcher_email, corkboardID) VALUES (%s, %s)",[session['email'], id])
+                mysql.connection.commit()
+                return redirect(url_for('ViewCorkboard',id=id))
+        if 'Addpushpin'in request.form:
+            return redirect(url_for('AddPushpinView', id=id))
 
-        # Image thumbnails of pushpins
-
-    #else:
-        #Grey out follow button
-        #Grey out watch button
-        #Grey out like buttons
-
-        # , category=category, num_watchers=num_watchers
 
     return render_template('view_corkboard.html', owner=owner,
                             session=session['email'], category=category,
-                            date_updated=date_updated, num_watchers=num_watchers,images=images)
-#
-#
+                            date_updated=date_updated, num_watchers=num_watchers,images=images, enable_Follow=enable_Follow,enable_Watch=enable_Watch,enable_addpushpin=enable_addpushpin)
+
+
 def Watch(id):
     check_watch = cur.execute("SELECT * FROM Watches\
                                 WHERE email = %s\
@@ -513,7 +538,7 @@ def AddPushpinView(id):
 
                 mysql.connection.commit()
 
-        return render_template('AddPushpin.html')
+        return redirect(url_for('ViewCorkboard',id=id))
 
     print(id)
     return render_template('AddPushpin.html')
@@ -537,13 +562,14 @@ def pushpin(pushpinID):
         data=cur.fetchone()
         title=data['title']
 
-    result=cur.execute("SELECT url, SUBSTRING(\
+    result=cur.execute("SELECT corkboardID, url, SUBSTRING(\
         url,\
         LOCATE('//', url) + 2,\
         LOCATE('/', url, LOCATE('//', url) + 2) - LOCATE('//', url) - 2) AS domain,\
         description, pushpin_date FROM Pushpin WHERE pushpinID=%s",[pushpinID])
     if result>0:
         data=cur.fetchone()
+        corkboardID=data['corkboardID']
         url=data['url']
         url_domain=data['domain']
         description=data['description']
@@ -626,17 +652,8 @@ def pushpin(pushpinID):
             mysql.connection.commit()
             return redirect(url_for('pushpin',pushpinID=pushpinID))
 
-    return render_template("pushpin.html",fname=fname,lname=lname,title=title,pushpin_date=pushpin_date,url_domain=url_domain,\
+    return render_template("pushpin.html",fname=fname,lname=lname,title=title,corkboardID=corkboardID,pushpin_date=pushpin_date,url_domain=url_domain,\
     url=url,description=description,taglist=taglist,likerlist=likerlist,commentlist=commentlist,enable_Like=enable_Like, enable_Follow=enable_Follow)
-
-
-
-
-
-
-
-
-
 
 
 

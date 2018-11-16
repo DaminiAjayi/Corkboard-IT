@@ -16,15 +16,16 @@
     <input type="submit" name="Follow" value="unFollow">
     {% endif %}
   </h1>
-  <p>Pinned {{pushpin_date}} on <a href="{{ url_for('login')}}"> {{title}} </a></p>
+  <p>Pinned {{pushpin_date}} on <a href="{{ url_for('ViewCorkboard', id = corkboardID)}}"> {{title}} </a></p>
   <hr />
 
   <p>from {{url_domain}}</p>
-  <p><img src="{{url}}" alt="Pushpin Image"></p>
+  <p><a href="{{url}}"><img src="{{url}}" alt="Pushpin Image"></a></p>
   <p>{{description}}</p>
   <p>Tags:
+    {%set comma = joiner(", ") %}
     {% for itag in taglist %}
-    <b>{{itag}},</b>
+    {{ comma() }}{{ itag }}
     {% endfor %}
   </p>
   <hr />
