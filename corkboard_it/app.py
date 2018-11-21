@@ -488,17 +488,18 @@ def AddPushpinView(id):
             return render_template(
                 'AddPushpin.html')
 
-        try:
-           urllib.request.urlopen(URL)
-           print('Good Link')
-        except:
-           flash('URL is invalid', 'danger')
-           return render_template('AddPushpin.html')
+        # Check URL start
+        valid_url_start = ['https://', 'http://']
+        if URL[0:8] in valid_url_start or URL[0:7] in valid_url_start:
+            pass
+        else:
+            flash('URL missing http or https', 'danger')
+            return render_template('AddPushpin.html')
 
         # Check for valid Image formats
         url_name, url_extension = os.path.splitext(URL)
         if url_extension not in ALLOWED_EXTENSIONS:
-            flash('Image Extension Not Supported')
+            flash('Image Extension Not Supported', 'danger')
             return render_template('AddPushpin.html')
 
         # Get and check Pushpin Description
