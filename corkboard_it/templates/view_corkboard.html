@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<br />
+<br />
+
+<form method="POST" action="">
+  <h1>{{owner.full_name}}
+    {% if enable_Follow==0 %}
+    <input type="submit" name="Follow" value="Follow" disabled>
+    {% elif enable_Follow==1 %}
+    <input type="submit" name="Follow" value="Follow">
+    {% elif enable_Follow==2 %}
+    <input type="submit" name="Follow" value="unFollow">
+    {% endif %}
+  </h1>
+  <font size="3">Category: {{category.category}}</font>
+  <hr />
+
+  <h1>
+    <font size="5">{{category.title}}
+      {% if enable_addpushpin==0 %}
+      <input type="submit" name="Addpushpin" value="Add Pushpin" disabled>
+      {% elif enable_addpushpin==1 %}
+      <input type="submit" name="Addpushpin" value="Add Pushpin">
+      {% endif %}
+  </h1>
+  <p>
+    <font size="3">Last Updated {{date_updated.pushpin_date}}</font>
+  </p>
+
+  <div>
+    <tr>
+      {% for image in images %}
+      <td>
+        <a href="{{ url_for('pushpin', pushpinID = image.pushpinID)}}"><img src={{image.url}} alt="user image" style="width:30%"></a>
+      </td>
+      {% endfor %}
+    </tr>
+  </div>
+
+
+  <hr />
+  <h2>
+    <font size="3"> This Corkboard has {{num_watchers.Count}} watchers.</font>
+
+    {% if enable_Watch==0 %}
+    <input type="submit" name="Watch" value="Watch" disabled>
+    {% elif enable_Watch==1 %}
+    <input type="submit" name="Watch" value="Watch">
+    {% elif enable_Watch==2 %}
+    <input type="submit" name="Watch" value="unWatch">
+    {% endif %}
+  </h2>
+
+</form>
+{% endblock %}

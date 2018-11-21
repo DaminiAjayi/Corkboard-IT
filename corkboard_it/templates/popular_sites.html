@@ -1,0 +1,42 @@
+<head>
+  <style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    td,
+    th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+  </style>
+</head>
+
+{% extends 'layout.html' %}
+
+{% block body %}
+<br />
+<div>
+  <h1>Popular Sites</h1>
+</div>
+
+<table style="width:100%" border=1>
+  <tr>
+    <td><b>Site Domain</b></td>
+    <td><b>PushPins</b></td>
+  </tr>
+  {% for isite in sites %}
+  <tr>
+    <td>{{isite.PopularSite}}</td>
+    <td>{{isite.CountPopularSite}}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

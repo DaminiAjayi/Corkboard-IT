@@ -1,0 +1,42 @@
+<head>
+  <style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    td,
+    th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+  </style>
+</head>
+
+{% extends 'layout.html' %}
+
+{% block body %}
+<br />
+<h2>Popular Tags</h2>
+<table border=1>
+  <tr>
+    <th> Tag </th>
+    <th> PushPins </th>
+    <th> Unique Corkboards </th>
+  </tr>
+
+  {% for result in results %}
+  <tr>
+    <td><a href="/search_results/{{ result.tag }}"> {{ result.tag }} </a></td>
+    <td> {{ result.PushPins }} </td>
+    <td> {{ result.Corkboards }} </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

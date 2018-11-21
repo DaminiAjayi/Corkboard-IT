@@ -1,0 +1,73 @@
+<!-- EJS Format -->
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="jumbotron text-center">
+  <h1>Home Page for {{current_user.full_name}}</h1>
+  <hr />
+
+  <h2>Recent CorkBoard Updates</h2>
+  <ul class="list-group">
+    {% for corkboard in recent_updates %}
+    <li class="list-group-item">
+      {% if 'private' in corkboard.type %}
+      <a href="private_login/{{corkboard.corkboardID}}">{{corkboard.title}}</a>
+      <font color="red">({{corkboard.type}})</font>
+      {% else %}
+      <a href="corkboard/{{corkboard.corkboardID}}">{{corkboard.title}}</a>
+      {% endif %}
+      <br />
+      Updated by {{corkboard.full_name}} on {{corkboard.recent_date}}
+    </li>
+    {% else %}
+    <p>No Updates</p>
+    {% endfor %}
+  </ul>
+  <hr />
+
+  <h2>
+    My Corkboards
+    <a href="add_corkboard" class="btn btn-primary btn-lg">Add Corkboard</a>
+  </h2>
+  <ul class="list-group">
+    {% for corkboard in my_corkboards %}
+    <li class="list-group-item">
+      {% if 'private' in corkboard.type %}
+      <a href="private_login/{{corkboard.corkboardID}}">{{corkboard.title}}</a>
+      <font color="red">({{corkboard.type}})</font>
+      {% else %}
+      <a href="corkboard/{{corkboard.corkboardID}}">{{corkboard.title}}</a>
+      {% endif %}
+      with {{corkboard.pushpin_count}} PushPins
+    </li>
+    {% else %}
+    <p>You have no CorkBoards.</p>
+    {% endfor %}
+  </ul>
+  <hr />
+
+  <!-- All them buttons -->
+  <a href="/PopularTags" class="btn btn-primary btn-lg">Popular Tags</a>
+  <a href="/popular_sites" class="btn btn-primary btn-lg">Popular Sites</a>
+  <a href="/CorkboardStats" class="btn btn-primary btn-lg">Corkboard Statistics</a>
+  <br />
+  <br />
+
+  <!-- Search Input -->
+  {% from 'includes/_formhelpers.html' import render_field %}
+  <form method="POST">
+    <div class="form-group">
+      {{render_field(form.search, class_="form-control")}}
+    </div>
+    <p>
+      <input type="submit" class="btn btn-primary" value="PushPin Search" />
+    </p>
+  </form>
+
+</div>
+{% endblock %}
+
+
+
+<!-- For hyperlinking -->
+<!-- <a href="article/{{article.id}}">{{article.title}}</a> -->

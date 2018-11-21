@@ -1,0 +1,40 @@
+<head>
+  <style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    td,
+    th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+  </style>
+</head>
+
+{% extends 'layout.html' %}
+
+{% block body %}
+<h2>PushPin Search Results</h2>
+<table width=100%>
+  <tr>
+    <th>PushPin Description</th>
+    <th>Corkboard</th>
+    <th>Owner</th>
+  </tr>
+  {% for result in results %}
+  <tr>
+    <td><a href='{{ url_for('pushpin', pushpinID=result.pushpinID)}}'>{{result.PushPinDescription}}</a></td>
+    <td>{{result.CorkBoard}}</td>
+    <td>{{result.fullname}}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

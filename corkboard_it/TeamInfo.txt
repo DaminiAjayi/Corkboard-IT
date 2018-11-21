@@ -1,0 +1,3 @@
+SQL Schema Location: schema.sql
+SQL Insert Data: inserts.sql
+SQL Statements for Application Processes: app.py
